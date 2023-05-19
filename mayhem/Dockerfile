@@ -9,7 +9,7 @@ RUN apt-get update && \
 ADD . ./src
 
 RUN cd /src && \
-    clang fuzzer.cpp -o fuzzer -fsanitize=fuzzer
+    clang -DDIR_POSIX fuzzer.cpp -o fuzzer -fsanitize=fuzzer
 
 ENTRYPOINT []
 CMD /src/fuzzer
