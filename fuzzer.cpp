@@ -30,27 +30,27 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
 
   FuzzedDataProvider fdp(data, size);
 
-  auto select = fdp.ConsumeIntegralInRange(0, 3);
+  auto select = fdp.ConsumeIntegralInRange(0, 2);
   /*
    *  Testing Images api 
     */
 
   if (select == 0)   // Images
   {
-    auto val = fdp.ConsumeIntegralInRange(0, 5);
+    auto val = fdp.ConsumeIntegralInRange(0, 4);
     if (val == 0)
     {
       auto vec = fdp.ConsumeBytes<uint8_t> (size);
       uint32_t * ptr = reinterpret_cast<uint32_t*>(vec.data());
       if (ptr != NULL)
       {
-       img_t img = img_from_abgr32(ptr, fdp.ConsumeIntegral<unsigned>(), fdp.ConsumeIntegral<unsigned>());
+       img_t img = img_from_abgr32(ptr, fdp.ConsumeIntegralInRange<unsigned>(0,2000), fdp.ConsumeIntegralInRange<unsigned>(0,2000));
       if (img.pixels!=NULL) img_free(&img);
       }
     }
     else if (val == 1)
     {
-      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
       }
@@ -58,7 +58,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
     }
     else if (val == 2)
     {
-      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_contrast(&img,fdp.ConsumeFloatingPoint<float>());
       }
@@ -66,7 +66,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
     }
     else if (val == 3)
     {
-      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
       }
@@ -74,7 +74,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
     }
     else if (val == 4)
     {
-      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_sharpen(&img,fdp.ConsumeFloatingPoint<float>(),fdp.ConsumeFloatingPoint<float>());
       }
@@ -87,7 +87,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
 
   else if (select == 1)   // Buffers
   {
-    auto val = fdp.ConsumeIntegralInRange(0, 2);
+    auto val = fdp.ConsumeIntegralInRange(0, 1);
     if (val == 0)
     {
       buffer_t * buf = buffer_create();  
@@ -107,7 +107,7 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
 
   else if (select == 2)   // Dir
   {
-    auto val = fdp.ConsumeIntegralInRange(0, 1);
+    auto val = fdp.ConsumeIntegralInRange(0, 0);
     if (val == 0)
     {
       std::string str = fdp.ConsumeRemainingBytesAsString();
