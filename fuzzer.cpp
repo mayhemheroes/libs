@@ -31,11 +31,6 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
 
   FuzzedDataProvider fdp(data, size);
 
-  auto select = fdp.ConsumeIntegralInRange(0, 2);
-  /*
-   *  Testing Images api 
-    */
-
   if ((img.pixels) == NULL)
   {
     img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000), fdp.ConsumeIntegralInRange<unsigned>(0,2000));
@@ -43,76 +38,51 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
 
   
   
-  if (select == 0)   // Images
+  auto value = fdp.ConsumeIntegralInRange(0,1000);
+
+  if (value>990)
   {
-
-
-    auto value = fdp.ConsumeIntegralInRange(0,1000);
-
-    if (value>990)
-    {
-      if (img.pixels!=NULL)
-	img_free(&img);
-      
-      img = img_create(fdp.ConsumeIntegral<unsigned>(),
+    if (img.pixels!=NULL)
+      img_free(&img);
+    
+    img = img_create(fdp.ConsumeIntegral<unsigned>(),
 		       fdp.ConsumeIntegral<unsigned>());
-      
-			     
-    }
-
-    auto val = fdp.ConsumeIntegralInRange(0,4);      
-    if (val == 0)
-    {
-      auto vec = fdp.ConsumeBytes<uint8_t> (size);
-      uint32_t * ptr = reinterpret_cast<uint32_t*>(vec.data());
-
-    }
-    else if (val == 1)
-    {
-      if (img.pixels != NULL){
-          img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
-      }
-    }
-    else if (val == 2)
-    {
-      if (img.pixels != NULL){
-          img_adjust_contrast(&img,fdp.ConsumeFloatingPoint<float>());
-      }
-      if (img.pixels!=NULL) img_free(&img);
-    }
-    else if (val == 3)
-    {
-      if (img.pixels != NULL){
-          img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
-      }
-    }
-    else if (val == 4)
-    {
-      if (img.pixels != NULL){
-          img_sharpen(&img,fdp.ConsumeFloatingPoint<float>(),fdp.ConsumeFloatingPoint<float>());
-      }
-    }
+    
+    
   }
-  /*
-   *  Testing Buffers api 
-    */
-
-  else if (select == 1)   // Buffers
+  
+  auto val = fdp.ConsumeIntegralInRange(0,4);      
+  if (val == 0)
   {
-    buffer_t * buf = buffer_create();  
-    std::string str = fdp.ConsumeRemainingBytesAsString();
-    buffer_write_char( buf, str.c_str(), str.size() );
-    if (buf != NULL) buffer_destroy(buf);
+    auto vec = fdp.ConsumeBytes<uint8_t> (size);
+    uint32_t * ptr = reinterpret_cast<uint32_t*>(vec.data());
+    
   }
-  /*
-   *  Testing Dir api 
-    */
-
-  else if (select == 2)   // Dir
+  else if (val == 1)
   {
-    std::string str = fdp.ConsumeRemainingBytesAsString();
-    dir_t* dir = dir_open(str.c_str());
-    if (dir != NULL) dir_close(dir);
+    if (img.pixels != NULL){
+      img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
+    }
   }
+  else if (val == 2)
+  {
+    if (img.pixels != NULL){
+      img_adjust_contrast(&img,fdp.ConsumeFloatingPoint<float>());
+    }
+    if (img.pixels!=NULL) img_free(&img);
+  }
+  else if (val == 3)
+  {
+    if (img.pixels != NULL){
+      img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
+    }
+  }
+  else if (val == 4)
+  {
+      if (img.pixels != NULL){
+	img_sharpen(&img,fdp.ConsumeFloatingPoint<float>(),fdp.ConsumeFloatingPoint<float>());
+      }
+  }
+
   return 1;
 }
