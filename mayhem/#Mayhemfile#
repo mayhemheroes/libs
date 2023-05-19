@@ -1,0 +1,5 @@
+project: tinyalloc
+target: fuzz
+cmds:
+  - cmd: /src/fuzzer
+    libfuzzer: true

@@ -1,0 +1,102 @@
+
+#include <stddef.h>
+#include <stdint.h>
+
+#define BUFFER_U64_T uint64_t
+#include "buffer.h"
+
+#define BUFFER_IMPLEMENTATION
+#include "buffer.h"
+
+#define HASHTABLE_U32 uint32_t
+#define HASHTABLE_U64 uint32_t
+#include "hashtable.h"
+
+#define HASHTABLE_IMPLEMENTATION
+#include "hashtable.h"
+
+#define IMG_IMPLEMENTATION
+#include "img.h"
+
+
+#include "fuzzer/FuzzedDataProvider.h"
+
+extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
+{
+
+  FuzzedDataProvider fdp(data, size);
+
+  auto select = fdp.ConsumeIntegralInRange(0, 2);
+  if (select == 0)   // images
+  {
+    auto val = fdp.ConsumeIntegralInRange(0, 5);
+    if (val == 0)
+    {
+      auto vec = fdp.ConsumeBytes<uint8_t> (size);
+      uint32_t * ptr = reinterpret_cast<uint32_t*>(vec.data());
+      if (ptr != NULL)
+      {
+       img_t img = img_from_abgr32(ptr, fdp.ConsumeIntegral<unsigned>(), fdp.ConsumeIntegral<unsigned>());
+      if (img.pixels!=NULL) img_free(&img);
+      }
+    }
+    else if (val == 1)
+    {
+      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      if (img.pixels != NULL){
+          img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
+      }
+      if (img.pixels!=NULL) img_free(&img);
+    }
+    else if (val == 2)
+    {
+      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      if (img.pixels != NULL){
+          img_adjust_contrast(&img,fdp.ConsumeFloatingPoint<float>());
+      }
+      if (img.pixels!=NULL) img_free(&img);
+    }
+    else if (val == 3)
+    {
+      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      if (img.pixels != NULL){
+          img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
+      }
+      if (img.pixels!=NULL) img_free(&img);
+    }
+    else if (val == 4)
+    {
+      img_t img = img_create(fdp.ConsumeIntegral<unsigned>()+1, fdp.ConsumeIntegral<unsigned>()+1);
+      if (img.pixels != NULL){
+          img_sharpen(&img,fdp.ConsumeFloatingPoint<float>(),fdp.ConsumeFloatingPoint<float>());
+      }
+      if (img.pixels!=NULL) img_free(&img);
+    }
+  }
+  else if (select == 1)   // buffers
+  {
+    auto val = fdp.ConsumeIntegralInRange(0, 3);
+    if (val == 0)
+    {
+      buffer_t * buf = buffer_create();  
+      std::string str = fdp.ConsumeRemainingBytesAsString();
+      buffer_write_char( buf, str.c_str(), str.size() );
+      if (buf != NULL) buffer_destroy(buf);
+    }
+    else if (val == 1)
+    {
+      buffer_t * buf = buffer_load(fdp.ConsumeRemainingBytesAsString().c_str());
+      if (buf != NULL) buffer_destroy(buf);
+    }
+    else if (val == 2)
+    {
+      buffer_t * buf = buffer_load(fdp.ConsumeRemainingBytesAsString().c_str());
+      if (buf != NULL)
+      {
+      buffer_save(buf, fdp.ConsumeRemainingBytesAsString().c_str());
+      }
+      if (buf != NULL) buffer_destroy(buf);
+    }
+  }
+  return 1;
+}
