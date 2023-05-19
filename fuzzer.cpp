@@ -22,7 +22,8 @@
 #define DIR_IMPLEMENTATION
 #include "dir.h"
 
-
+  
+img_t img ;
 #include "fuzzer/FuzzedDataProvider.h"
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
@@ -35,9 +36,31 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
    *  Testing Images api 
     */
 
+  if ((img.pixels) == NULL)
+  {
+    img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000), fdp.ConsumeIntegralInRange<unsigned>(0,2000));
+  }
+
+  
+  
   if (select == 0)   // Images
   {
-    auto val = fdp.ConsumeIntegralInRange(0, 4);
+
+
+    auto value = fdp.ConsumeIntegralInRange(0,500);
+
+    if (value>400)
+    {
+      if (img.pixels!=NULL)
+	img_free(&img);
+      
+      img = img_create(fdp.ConsumeIntegral<unsigned>(),
+		       fdp.ConsumeIntegral<unsigned>());
+      
+			     
+    }
+
+    auto val = fdp.ConsumeIntegralInRange(0,4);      
     if (val == 0)
     {
       auto vec = fdp.ConsumeBytes<uint8_t> (size);
@@ -50,15 +73,12 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
     }
     else if (val == 1)
     {
-      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
       }
-      if (img.pixels!=NULL) img_free(&img);
     }
     else if (val == 2)
     {
-      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_contrast(&img,fdp.ConsumeFloatingPoint<float>());
       }
@@ -66,19 +86,15 @@ extern "C" int LLVMFuzzerTestOneInput(uint8_t * data, size_t size)
     }
     else if (val == 3)
     {
-      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_adjust_brightness(&img,fdp.ConsumeFloatingPoint<float>());
       }
-      if (img.pixels!=NULL) img_free(&img);
     }
     else if (val == 4)
     {
-      img_t img = img_create(fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1, fdp.ConsumeIntegralInRange<unsigned>(0,2000)+1);
       if (img.pixels != NULL){
           img_sharpen(&img,fdp.ConsumeFloatingPoint<float>(),fdp.ConsumeFloatingPoint<float>());
       }
-      if (img.pixels!=NULL) img_free(&img);
     }
   }
   /*
